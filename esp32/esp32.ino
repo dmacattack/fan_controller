@@ -11,23 +11,35 @@
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
 
+// constants
 #define SERVICE_UUID        "deadbeef-1fb5-459e-8fcc-555555555555"
 #define CHARACTERISTIC_UUID "b000b135-36e1-4688-b7f5-666666666666"
+const std::string CMD_ON = "fan_on";
+const std::string CMD_OFF = "fan_off";
 #define LED_PIN 12
 
+// member vars
+BLECharacteristic *pCharacteristic = NULL;
+
+/**
+ * enableLED - turn the LED on or off
+ */
 void enableLED(bool en)
 {
   digitalWrite(LED_PIN, (en ? HIGH : LOW));
 }
 
-BLECharacteristic *pCharacteristic = NULL;
-
-void setup() {
+/**
+ * setup the pins and the BLE server
+ */
+void setup() 
+{
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
 
   // set the led as output
   pinMode(LED_PIN, OUTPUT);
+  enableLED(false);
 
   BLEDevice::init("Fan Controller");
   BLEServer *pServer = BLEDevice::createServer();
@@ -56,6 +68,13 @@ void loop() {
   std::string val = pCharacteristic->getValue();
   Serial.print(" The Characteristic value is ");
   Serial.println(val.c_str());
-  enableLED((val == "penis"));
-  
+
+  if (val == CMD_ON)
+  {
+    enableLED(true);
+  }
+  else if (val == CMD_OFF)
+  {
+    enableLED(false);
+  }
 }
